@@ -44,27 +44,23 @@ function verifyVoucher(code) {
 }
 
 // ── Node / Express integration ──────────────────────────────────────────────
-// If this file is executed as a module (e.g. with Express or a serverless
-// runtime), export the handler.  If run directly, start a minimal HTTP server
-// for local testing.
+// Export the helper and Express-compatible handler for use as a module.
 
-if (typeof module !== 'undefined') {
-  /**
-   * Express-compatible request handler.
-   *
-   * Usage:
-   *   const { handler } = require('./api/verify');
-   *   app.post('/api/verify', express.json(), handler);
-   */
-  module.exports = {
-    verifyVoucher,
-    handler: function (req, res) {
-      const { code } = req.body || {};
-      const result = verifyVoucher(code);
-      res.status(result.valid ? 200 : 400).json(result);
-    },
-  };
-}
+/**
+ * Express-compatible request handler.
+ *
+ * Usage:
+ *   const { handler } = require('./api/verify');
+ *   app.post('/api/verify', express.json(), handler);
+ */
+module.exports = {
+  verifyVoucher,
+  handler: function (req, res) {
+    const { code } = req.body || {};
+    const result = verifyVoucher(code);
+    res.status(result.valid ? 200 : 400).json(result);
+  },
+};
 
 // ── Minimal HTTP server for standalone testing ───────────────────────────────
 if (require.main === module) {

@@ -61,8 +61,11 @@
 <body>
   <div class="container">
     <h1>🎁 Gift Voucher Check</h1>
-    <input type="text" id="code" placeholder="Enter voucher code" />
-    <button onclick="verifyCode()">Verify</button>
+    <form onsubmit="event.preventDefault(); verifyCode();">
+      <label for="code" style="display:block;margin-bottom:.4rem;">Voucher code</label>
+      <input type="text" id="code" placeholder="Enter voucher code" aria-label="Voucher code" />
+      <button type="submit">Verify</button>
+    </form>
     <div id="result"></div>
   </div>
 
