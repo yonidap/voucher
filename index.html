@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FACTORY 54 Gift</title>
+  <title>Gift Card</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -56,21 +56,27 @@
       color: #f5deb3;
       margin: 10px 0 24px;
     }
-    input, button {
-      border: none;
-      padding: 14px 16px;
-      font-size: 16px;
-      border-radius: 14px;
-    }
-    input {
-      width: 220px;
-      text-align: center;
-    }
     button {
-      background: #fff;
+      border: none;
+      background: #ffffff;
       color: #111;
+      padding: 14px 22px;
+      font-size: 17px;
       font-weight: 700;
+      border-radius: 14px;
       cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); opacity: 0.92; }
+    .details {
+      display: none;
+      margin-top: 24px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 18px;
+      padding: 18px;
+      text-align: right;
     }
     .row {
       display: flex;
@@ -81,21 +87,12 @@
       font-size: 16px;
     }
     .row:last-child { border-bottom: none; }
-    .details {
-      display: none;
-      margin-top: 24px;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.14);
-      border-radius: 18px;
-      padding: 18px;
-      text-align: right;
-    }
     .label { color: rgba(255,255,255,0.75); }
     .value { font-weight: 700; letter-spacing: 0.5px; }
-    .msg {
-      margin-top: 10px;
-      font-size: 14px;
-      min-height: 20px;
+    .note {
+      margin-top: 18px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
     }
   </style>
 </head>
@@ -103,77 +100,49 @@
   <div class="card">
     <div class="badge">FACTORY 54 Gift Card</div>
     <h1>איזה כיף! קיבלת גיפט קארד לרשת FACTORY 54</h1>
-    <p class="sub">הזן קוד גישה בן 8 ספרות כדי לצפות בפרטי השובר.</p>
+    <p class="sub">הזן קוד גישה בן 8 ספרות כדי לצפות בקוד השובר.</p>
     <div class="amount">₪200</div>
 
-    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-      <input id="pinInput" type="password" inputmode="numeric" maxlength="8" placeholder="הזן קוד גישה" />
-      <button id="submitBtn">הצג שובר</button>
+    <div style="display:flex; gap:10px; justify-content:center; margin-bottom:10px; flex-wrap:wrap;">
+      <input id="pinInput" type="password" inputmode="numeric" maxlength="8" placeholder="הזן קוד גישה" style="padding:14px 16px; border-radius:14px; border:none; width:220px; font-size:16px; text-align:center;" />
+      <button onclick="showDetails()">הצג שובר</button>
     </div>
-
-    <div id="msg" class="msg"></div>
+    <div id="errorMsg" style="display:none; color:#ffd6d6; margin-top:6px; font-size:14px;">קוד שגוי. יש להזין 8 ספרות.</div>
 
     <div id="details" class="details">
       <div class="row">
         <span class="label">קוד שובר</span>
-        <span id="voucherCode" class="value"></span>
+        <span class="value">FACTORY54-200-GIFT</span>
       </div>
       <div class="row">
         <span class="label">בתוקף עד</span>
-        <span id="voucherExpiry" class="value"></span>
+        <span class="value">31/12/2026</span>
       </div>
       <div class="row">
         <span class="label">למימוש</span>
-        <span id="voucherUse" class="value"></span>
+        <span class="value">בסניפים ובאתר</span>
       </div>
+      <div class="note">לפני פרסום, החלף את קוד הגישה והפרטים בדוגמה בפרטים שלך.</div>
     </div>
   </div>
 
   <script>
-    const btn = document.getElementById('submitBtn');
-    const pinInput = document.getElementById('pinInput');
-    const msg = document.getElementById('msg');
-    const details = document.getElementById('details');
+    const ACCESS_CODE = '12345678';
 
-    btn.addEventListener('click', async () => {
-      const pin = pinInput.value.trim();
+    function showDetails() {
+      const pin = document.getElementById('pinInput').value.trim();
+      const errorMsg = document.getElementById('errorMsg');
+      const details = document.getElementById('details');
 
-      msg.textContent = '';
-      details.style.display = 'none';
-
-      if (!/^\\d{8}$/.test(pin)) {
-        msg.textContent = 'יש להזין 8 ספרות.';
+      if (!/^\d{8}$/.test(pin) || pin !== ACCESS_CODE) {
+        errorMsg.style.display = 'block';
+        details.style.display = 'none';
         return;
       }
 
-      btn.disabled = true;
-      btn.textContent = 'בודק...';
-
-      try {
-        const res = await fetch('/api/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pin })
-        });
-
-        const data = await res.json();
-
-        if (!res.ok || !data.ok) {
-          msg.textContent = data.message || 'קוד שגוי.';
-          return;
-        }
-
-        document.getElementById('voucherCode').textContent = data.voucherCode;
-        document.getElementById('voucherExpiry').textContent = data.expiry;
-        document.getElementById('voucherUse').textContent = data.redeemAt;
-        details.style.display = 'block';
-      } catch {
-        msg.textContent = 'שגיאה זמנית. נסה שוב.';
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'הצג שובר';
-      }
-    });
+      errorMsg.style.display = 'none';
+      details.style.display = 'block';
+    }
   </script>
 </body>
 </html>
