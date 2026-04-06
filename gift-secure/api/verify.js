@@ -58,7 +58,7 @@ module.exports = {
   handler: function (req, res) {
     const { code } = req.body || {};
     const result = verifyVoucher(code);
-    res.status(result.valid ? 200 : 400).json(result);
+    res.status(200).json(result);
   },
 };
 
@@ -74,7 +74,7 @@ if (require.main === module) {
         try {
           const { code } = JSON.parse(body);
           const result = verifyVoucher(code);
-          res.writeHead(result.valid ? 200 : 400, { 'Content-Type': 'application/json' });
+          res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify(result));
         } catch {
           res.writeHead(400, { 'Content-Type': 'application/json' });
