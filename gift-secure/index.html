@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gift Voucher Verification</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f5f5f5;
+    }
+    .container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 1.5rem;
+      text-align: center;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.6rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      margin-bottom: 1rem;
+    }
+    button {
+      width: 100%;
+      padding: 0.7rem;
+      font-size: 1rem;
+      background: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    #result {
+      margin-top: 1rem;
+      text-align: center;
+      font-weight: bold;
+    }
+    #result.success { color: #4caf50; }
+    #result.error   { color: #e53935; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎁 Gift Voucher Check</h1>
+    <form onsubmit="event.preventDefault(); verifyCode();">
+      <label for="code" style="display:block;margin-bottom:.4rem;">Voucher code</label>
+      <input type="text" id="code" placeholder="Enter voucher code" />
+      <button type="submit">Verify</button>
+    </form>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    async function verifyCode() {
+      const code = document.getElementById('code').value.trim();
+      const result = document.getElementById('result');
+      result.textContent = '';
+      result.className = '';
+
+      if (!code) {
+        result.textContent = 'Please enter a voucher code.';
+        result.className = 'error';
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code }),
+        });
+        const data = await response.json();
+
+        if (data.valid) {
+          result.textContent = `✅ Valid voucher! Value: ${data.value}`;
+          result.className = 'success';
+        } else {
+          result.textContent = '❌ Invalid or expired voucher.';
+          result.className = 'error';
+        }
+      } catch (err) {
+        result.textContent = 'Error contacting server. Please try again.';
+        result.className = 'error';
+      }
+    }
+  </script>
+</body>
+</html>
